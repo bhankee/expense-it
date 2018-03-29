@@ -1,26 +1,30 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { BrowserRouter, Route } from 'react-router-dom';
+import { Provider } from 'react-redux';
+
 import 'normalize.css/normalize.css';
 import './styles/styles.scss';
+import AppRouter from './routers/appRouter';
+import configureStore from './store/configureStore';
+import { addExpense } from './actions/expenses';
+import { setTextFilter } from './actions/filters';
+import getVisibleExpenses from './selectors/expenses';
 
-const ExpenseDashboardPage = () => <div>Dashboard Component</div>;
+const store = configureStore();
 
-const AddExpensePage = () => <div>Add Expense Component</div>;
-const EditExpensePage = () => <div>EditExpense Component</div>;
-const HelpPage = () => <div>Help Component</div>;
-const NotFoundPage = () => <div>404 Page!</div>;
+store.dispatch(addExpense({ description: 'Water', amount: 4500 }));
+store.dispatch(addExpense({ description: 'Gas Bill', createdAt: 1000 }));
+store.dispatch(addExpense({ description: 'Rent', createdAt: 109500 }));
+store.dispatch(setTextFilter('water'));
 
-const routes = (
-  <BrowserRouter>
-    <div>
-      <Route path="/" component={ExpenseDashboardPage} exact="true" />
-      <Route path="/create" component={AddExpensePage} />
-      <Route path="/edit" component={EditExpensePage} />
-      <Route path="/help" component={HelpPage} />
-      <Route component={NotFoundPage} />
-    </div>
-  </BrowserRouter>
+const state = store.getState();
+const visibleExpenses = getVisibleExpenses(state.expenses, state.filters);
+console.log(visibleExpenses);
+console.log(state);
+
+const jsx = (
+  <Provider store={store}>
+    <AppRouter />
+  </Provider>
 );
-
-ReactDOM.render(routes, document.getElementById('app'));
+ReactDOM.render(jsx, document.getElementById('app'));
